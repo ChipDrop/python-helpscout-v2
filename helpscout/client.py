@@ -177,10 +177,12 @@ class HelpScout:
         headers = self._authentication_headers()
         logger.debug('Request: %s %s' % (method, url))
         r = getattr(requests, method)(url, headers=headers, json=data)
-        ok, status_code = r.ok, r.status_code
+        ok, status_code, headers = r.ok, r.status_code, r.headers
         logger.debug(
             'Received: %s %s (%s - %s)' % (method, url, ok, status_code))
-        if status_code in (201, 204):
+        if status_code == 201:
+            yield headers.get("Resource-ID")
+        elif status_code == 204:
             yield
         elif ok:
             response = r.json()
